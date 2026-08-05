@@ -1,0 +1,173 @@
+/* ============================================================
+   HERO FIX v2 — Xiaoyu Ye Portfolio Site
+   ============================================================
+   Changes from v1:
+   1. Avatar + name enlarged to occupy the identified whitespace
+      block above "PhD Candidate" (the blue-circled region).
+      Layout changes from single-line to a taller identity block.
+   2. Progress bars under ROLE / AWARD / STATUS tags removed —
+      they implied a "percentage complete" meaning that doesn't
+      apply to two of the three fields (Role, Award aren't
+      progress states). Tags now end cleanly after the value line.
+   3. Hero carousel: NOT implemented, per discussion — Hero stays
+      fixed on Breezy. Multi-project browsing belongs in the
+      Track 01/02 sections below the fold, not in the Hero.
+
+   As before: class names are best-guess based on screenshots.
+   Point Claude Code at this file and the real markup to map
+   selectors correctly if they don't match 1:1.
+   ============================================================ */
+
+/* ---------- 1. Identity block: avatar + name, enlarged ---------- */
+.hero-identity {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 40px; /* fills the vertical space before "PhD Candidate" */
+}
+
+.hero-avatar {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 1px solid rgba(178, 39, 42, 0.6); /* Breezy red, subtle */
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.hero-name-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hero-name {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600; /* SemiBold — carries more weight now that it's larger */
+  font-size: 28px;
+  letter-spacing: 0;
+  color: #F5F1EC;
+  text-transform: none;
+  line-height: 1.1;
+}
+
+.hero-name-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: rgba(245, 241, 236, 0.65);
+  letter-spacing: 0.01em;
+}
+/* Markup for reference:
+   <div class="hero-identity">
+     <img class="hero-avatar" src="..." alt="Xiaoyu Ye" />
+     <div class="hero-name-group">
+       <span class="hero-name">Xiaoyu Ye</span>
+       <span class="hero-name-subtitle">Spatial &amp; Healthcare UX Designer</span>
+     </div>
+   </div>
+*/
+
+/* ---------- 2. Headline stack — unchanged from v1, kept for reference ---------- */
+.hero-headline-primary {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 64px;
+  line-height: 1.05;
+  color: #F5F1EC;
+}
+
+.hero-headline-accent {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 58px;
+  line-height: 1.15;
+  color: #C63C3E;
+  margin-top: 4px;
+}
+
+/* ---------- 3. Data tags — remove progress bars ---------- */
+.hero-tag-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 236, 0.5);
+}
+
+.hero-tag-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  color: #F5F1EC;
+  margin-bottom: 0; /* no longer needs space reserved for a bar beneath it */
+}
+
+/* Delete or hide the progress bar element entirely.
+   If it's a dedicated element in the markup (e.g. <div class="hero-tag-bar">),
+   remove that div from the HTML rather than just hiding it with CSS —
+   cleaner than leaving dead markup in place. If removing from HTML isn't
+   convenient right now, this rule hides it immediately: */
+.hero-tag-bar,
+.hero-tag-progress {
+  display: none;
+}
+
+/* Optional: a static 1px hairline under each tag value keeps the
+   mono "data readout" visual language without implying a percentage.
+   Use this INSTEAD of the progress bar, not in addition to it. */
+.hero-tag-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(245, 241, 236, 0.15);
+  margin-top: 10px;
+}
+
+/* ---------- 4. Responsive: mobile (375px) ---------- */
+@media (max-width: 480px) {
+  .hero-identity {
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .hero-avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+  .hero-name {
+    font-size: 20px;
+  }
+
+  .hero-name-subtitle {
+    font-size: 13px;
+  }
+
+  .hero-headline-primary {
+    font-size: 40px;
+  }
+
+  .hero-headline-accent {
+    font-size: 36px;
+  }
+}
+
+/* ---------- 5. Responsive: tablet (768px) ---------- */
+@media (min-width: 481px) and (max-width: 900px) {
+  .hero-avatar {
+    width: 88px;
+    height: 88px;
+  }
+
+  .hero-name {
+    font-size: 24px;
+  }
+
+  .hero-headline-primary {
+    font-size: 52px;
+  }
+
+  .hero-headline-accent {
+    font-size: 46px;
+  }
+}

@@ -1,0 +1,95 @@
+/* ============================================================
+   RESEARCH ARTIFACT FRAME — Xiaoyu Ye Portfolio Site
+   ============================================================
+   Purpose: contains white/light-background research documents
+   (journey maps, hardware diagrams, etc.) inside a treatment that
+   (a) visually marks them as "preserved original artifacts" rather
+   than native site design, and (b) softens the brightness jump
+   against the dark page so they don't read as a jarring white block.
+
+   Expected markup:
+   <figure class="artifact-frame">
+     <span class="artifact-label">RESEARCH ARTIFACT — USER JOURNEY MAP</span>
+     <div class="artifact-image-wrap">
+       <img src="..." alt="..." />
+     </div>
+     <figcaption class="artifact-caption">
+       Dual-track emotional journey map: fear and resistance climbing
+       through the clinical routine (red) versus rising engagement
+       through Breezy's reframed routine (teal)...
+     </figcaption>
+   </figure>
+   ============================================================ */
+
+.artifact-frame {
+  max-width: 78%;         /* don't let it span full content width */
+  margin: 48px auto;      /* dark page margin visually "contains" it */
+  padding: 0;
+}
+
+.artifact-label {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 241, 236, 0.4);
+  margin-bottom: 12px;
+}
+
+.artifact-image-wrap {
+  position: relative;
+  border: 1px solid rgba(245, 241, 236, 0.12);
+  border-radius: 2px;
+  padding: 4px; /* thin "museum mat" edge in the page's own dark tone */
+  background: #0A0808; /* matches page background, not pure black */
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+}
+
+.artifact-image-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1px;
+
+  /* Softens the raw white without turning it gray — tune these
+     two values first if the source image can't be re-exported
+     with a warmer background color. */
+  filter: brightness(0.94) contrast(0.97);
+}
+
+/* Feathered edge: a radial glow using the artifact's own tone
+   bleeds a few pixels into the dark page instead of a hard cut. */
+.artifact-image-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -24px;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(245, 241, 236, 0.06) 0%,
+    rgba(245, 241, 236, 0) 70%
+  );
+  pointer-events: none;
+}
+
+.artifact-caption {
+  margin-top: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(245, 241, 236, 0.55);
+  max-width: 68ch;
+}
+
+/* ---------- Mobile: full-bleed within content padding, image can be larger proportionally since there's no side-by-side text to compete with ---------- */
+@media (max-width: 480px) {
+  .artifact-frame {
+    max-width: 100%;
+    margin: 32px 0;
+  }
+
+  .artifact-image-wrap {
+    padding: 3px;
+  }
+}

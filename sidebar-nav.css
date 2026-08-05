@@ -1,0 +1,178 @@
+/* ============================================================
+   TWO-LEVEL STICKY PROJECT NAV — Xiaoyu Ye Portfolio Site
+   ============================================================
+   Structure this CSS assumes (adjust class names to match real
+   markup — pass this + sidebar-nav.js to Claude Code along with
+   the actual HTML to wire selectors correctly):
+
+   <nav class="project-nav">
+     <ul class="nav-level-1">
+       <li class="nav-project" data-project="breezy">
+         <button class="nav-project-toggle">
+           <span class="nav-project-tag">FLAGSHIP</span>
+           Breezy — Red Dot Winner
+         </button>
+         <ul class="nav-level-2">
+           <li><a href="#breezy-overview" class="nav-sub-link">Overview</a></li>
+           <li><a href="#breezy-research" class="nav-sub-link">Research</a></li>
+           <li><a href="#breezy-design" class="nav-sub-link">Design</a></li>
+           <li><a href="#breezy-outcome" class="nav-sub-link">Outcome</a></li>
+         </ul>
+       </li>
+       <li class="nav-project" data-project="spatial-1">
+         <button class="nav-project-toggle">Spatial Design Project 1</button>
+         <ul class="nav-level-2"> ... </ul>
+       </li>
+     </ul>
+   </nav>
+   ============================================================ */
+
+/* ---------- Container ---------- */
+.project-nav {
+  position: sticky;
+  top: 96px; /* clears your fixed header height — adjust to match */
+  align-self: start;
+  width: 240px;
+  max-height: calc(100vh - 128px);
+  overflow-y: auto;
+  padding-right: 16px;
+  font-family: 'Inter', sans-serif;
+}
+
+.project-nav::-webkit-scrollbar {
+  width: 3px;
+}
+.project-nav::-webkit-scrollbar-thumb {
+  background: rgba(245, 241, 236, 0.15);
+}
+
+.nav-level-1 {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ---------- Level 1: Project names ---------- */
+.nav-project {
+  border-left: 1px solid rgba(245, 241, 236, 0.1);
+}
+
+.nav-project-toggle {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 0 10px 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: rgba(245, 241, 236, 0.55);
+  transition: color 0.15s ease;
+}
+
+.nav-project-toggle:hover {
+  color: rgba(245, 241, 236, 0.85);
+}
+
+.nav-project-tag {
+  display: block;
+  font-size: 10px;
+  color: #C63C3E; /* Breezy red */
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+/* Active project (the one currently in viewport) */
+.nav-project.is-active > .nav-project-toggle {
+  color: #F5F1EC;
+  border-left: none; /* the parent .nav-project border below takes over */
+}
+
+.nav-project.is-active {
+  border-left: 1px solid #C63C3E;
+}
+
+/* ---------- Level 2: Sub-sections, collapsed by default ---------- */
+.nav-level-2 {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+
+/* Expanded when the parent project is active or manually toggled open */
+.nav-project.is-expanded .nav-level-2 {
+  max-height: 320px; /* generous cap; actual content is shorter */
+}
+
+.nav-sub-link {
+  display: block;
+  padding: 6px 0 6px 28px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: rgba(245, 241, 236, 0.45);
+  text-decoration: none;
+  border-left: 1px solid transparent;
+  margin-left: -1px; /* aligns with parent's left border */
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.nav-sub-link:hover {
+  color: rgba(245, 241, 236, 0.8);
+}
+
+/* Currently visible sub-section — the scroll-spy target state */
+.nav-sub-link.is-current {
+  color: #F5F1EC;
+  font-weight: 500;
+  border-left: 1px solid #C63C3E;
+}
+
+/* ---------- Mobile: sidebar doesn't fit at 375px — convert to a
+   horizontal, single-level scrollable tab bar instead. Level 2
+   (sub-sections) drops out on mobile; rely on the section headers
+   themselves for orientation while scrolling. ---------- */
+@media (max-width: 900px) {
+  .project-nav {
+    position: sticky;
+    top: 64px; /* mobile header height */
+    width: 100%;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 12px 16px;
+    background: rgba(10, 8, 8, 0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(245, 241, 236, 0.08);
+  }
+
+  .nav-level-1 {
+    flex-direction: row;
+    gap: 20px;
+    white-space: nowrap;
+  }
+
+  .nav-project {
+    border-left: none;
+    flex-shrink: 0;
+  }
+
+  .nav-project-toggle {
+    padding: 4px 0;
+  }
+
+  .nav-project.is-active {
+    border-left: none;
+    border-bottom: 2px solid #C63C3E;
+  }
+
+  .nav-level-2 {
+    display: none; /* sub-sections hidden on mobile entirely */
+  }
+}
