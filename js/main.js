@@ -38,20 +38,43 @@
   if (!navProjects.length) return;
 
   var subLinks = document.querySelectorAll('.nav-sub-link');
+  var projectStartByKey = {
+    healthcare: 'breezy-overview',
+    spatial: 'spatial-light-house',
+    other: 'other',
+    experience: 'about'
+  };
 
-  // Click a project title with sub-links to expand/collapse it (accordion).
+  function goToProjectStart(project) {
+    var targetId = projectStartByKey[project.dataset.project];
+    if (!targetId) return;
+    var target = document.getElementById(targetId);
+    if (!target) return;
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, '', '#' + targetId);
+    }
+  }
+
+  // Click a project title to expand it and jump to its start; repeated clicks only jump.
   navProjects.forEach(function (project) {
     var toggle = project.querySelector('.nav-project-toggle');
     if (toggle.tagName === 'BUTTON') {
       toggle.addEventListener('click', function () {
         var wasExpanded = project.classList.contains('is-expanded');
-        navProjects.forEach(function (p) { p.classList.remove('is-expanded'); });
-        if (!wasExpanded) {
-          project.classList.add('is-expanded');
-          toggle.setAttribute('aria-expanded', 'true');
-        } else {
-          toggle.setAttribute('aria-expanded', 'false');
+        if (wasExpanded) {
+          goToProjectStart(project);
+          return;
         }
+
+        navProjects.forEach(function (p) {
+          p.classList.remove('is-expanded');
+          var pToggle = p.querySelector('.nav-project-toggle');
+          if (pToggle && pToggle.tagName === 'BUTTON') pToggle.setAttribute('aria-expanded', 'false');
+        });
+        project.classList.add('is-expanded');
+        toggle.setAttribute('aria-expanded', 'true');
+        goToProjectStart(project);
       });
     }
   });
@@ -75,10 +98,13 @@
         navProjects.forEach(function (project) {
           var isMatch = project.dataset.project === projectKey;
           project.classList.toggle('is-active', isMatch);
+          project.classList.toggle('is-expanded', isMatch);
+          var toggle = project.querySelector('.nav-project-toggle');
+          if (toggle && toggle.tagName === 'BUTTON') {
+            toggle.setAttribute('aria-expanded', isMatch ? 'true' : 'false');
+          }
           if (isMatch) {
             project.classList.add('is-expanded');
-            var toggle = project.querySelector('.nav-project-toggle');
-            if (toggle.tagName === 'BUTTON') toggle.setAttribute('aria-expanded', 'true');
           }
         });
       });

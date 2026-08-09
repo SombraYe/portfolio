@@ -26,6 +26,11 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+html { scroll-padding-top: 0; }
+
+[id] {
+  scroll-margin-top: calc(var(--nav-h) + 22px);
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -349,7 +354,7 @@ img { display: block; max-width: 100%; }
   max-width: var(--container);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .track-card {
   padding: 56px 48px;
@@ -441,7 +446,7 @@ img { display: block; max-width: 100%; }
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.02em;
-  color: var(--taupe);
+  color: var(--bone-dim);
   text-decoration: none;
   transition: color 0.15s ease;
 }
@@ -467,20 +472,20 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
   transition: max-height 0.25s ease;
 }
-.nav-project.is-expanded .nav-level-2 { max-height: 320px; }
+.nav-project.is-expanded .nav-level-2 { max-height: 520px; }
 
 .nav-sub-link {
   display: block;
   padding: 6px 0 6px 28px;
   font-family: var(--font-body);
   font-size: 13px;
-  color: var(--taupe-dim);
+  color: var(--taupe);
   text-decoration: none;
   border-left: 1px solid transparent;
   margin-left: -1px;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
-.nav-sub-link:hover { color: var(--bone-dim); }
+.nav-sub-link:hover { color: var(--bone); }
 .nav-sub-link.is-current {
   color: var(--bone);
   font-weight: 500;
