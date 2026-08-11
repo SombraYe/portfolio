@@ -622,6 +622,7 @@ img { display: block; max-width: 100%; }
    originals rather than native site design, and softens the
    brightness jump against the dark page. */
 .artifact-frame {
+  width: 100%;
   max-width: 78%;
   margin: 0 auto;
 }
@@ -632,11 +633,13 @@ img { display: block; max-width: 100%; }
   padding: 4px;
   background: var(--ink);
   box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+  aspect-ratio: 1.414 / 1;
 }
 .artifact-image-wrap img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   border-radius: 1px;
   filter: brightness(0.94) contrast(0.97);
 }

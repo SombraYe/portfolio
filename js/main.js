@@ -44,6 +44,13 @@
     other: 'other',
     experience: 'about'
   };
+  var programmaticScroll = {
+    active: false,
+    targetId: '',
+    token: 0,
+    settleTimer: null,
+    failsafeTimer: null
+  };
 
   function navOffset() {
     var nav = document.getElementById('nav');
@@ -64,24 +71,74 @@
       return target.getBoundingClientRect().top + window.pageYOffset - navOffset();
     }
 
+    startProgrammaticScroll(targetId);
+
     window.scrollTo({
       top: Math.max(0, targetTop()),
       behavior: prefersReducedMotion ? 'auto' : 'smooth'
     });
 
-    if (!prefersReducedMotion) {
-      [900, 1700].forEach(function (delay) {
-        setTimeout(function () {
-          window.scrollTo({ top: Math.max(0, targetTop()), behavior: 'auto' });
-        }, delay);
-      });
-    }
-
     if (window.history && window.history.pushState) {
       window.history.pushState(null, '', '#' + targetId);
     }
+    if (prefersReducedMotion) finishProgrammaticScroll(programmaticScroll.token);
     return true;
   }
+
+  function projectForTarget(targetId) {
+    var target = document.getElementById(targetId);
+    return target ? target.dataset.project : '';
+  }
+
+  function setActiveNav(projectKey, sectionId) {
+    if (!projectKey) return;
+
+    subLinks.forEach(function (link) {
+      link.classList.toggle('is-current', link.getAttribute('href') === '#' + sectionId);
+    });
+
+    navProjects.forEach(function (project) {
+      var isMatch = project.dataset.project === projectKey;
+      project.classList.toggle('is-active', isMatch);
+      project.classList.toggle('is-expanded', isMatch);
+      var toggle = project.querySelector('.nav-project-toggle');
+      if (toggle && toggle.tagName === 'BUTTON') {
+        toggle.setAttribute('aria-expanded', isMatch ? 'true' : 'false');
+      }
+    });
+  }
+
+  function startProgrammaticScroll(targetId) {
+    programmaticScroll.token += 1;
+    programmaticScroll.active = true;
+    programmaticScroll.targetId = targetId;
+    clearTimeout(programmaticScroll.settleTimer);
+    clearTimeout(programmaticScroll.failsafeTimer);
+
+    setActiveNav(projectForTarget(targetId), targetId);
+
+    var token = programmaticScroll.token;
+    programmaticScroll.failsafeTimer = setTimeout(function () {
+      finishProgrammaticScroll(token);
+    }, 1600);
+  }
+
+  function finishProgrammaticScroll(token) {
+    if (token !== programmaticScroll.token) return;
+    clearTimeout(programmaticScroll.settleTimer);
+    clearTimeout(programmaticScroll.failsafeTimer);
+    setActiveNav(projectForTarget(programmaticScroll.targetId), programmaticScroll.targetId);
+    programmaticScroll.active = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!programmaticScroll.active) return;
+    var token = programmaticScroll.token;
+    clearTimeout(programmaticScroll.settleTimer);
+    programmaticScroll.settleTimer = setTimeout(function () {
+      finishProgrammaticScroll(token);
+    }, 180);
+  }, { passive: true });
 
   function goToProjectStart(project) {
     var targetId = projectStartByKey[project.dataset.project];
@@ -126,28 +183,15 @@
 
   var observer = new IntersectionObserver(
     function (entries) {
+      if (programmaticScroll.active) return;
+
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
 
         var sectionId = entry.target.id;
         var projectKey = entry.target.dataset.project;
 
-        subLinks.forEach(function (link) {
-          link.classList.toggle('is-current', link.getAttribute('href') === '#' + sectionId);
-        });
-
-        navProjects.forEach(function (project) {
-          var isMatch = project.dataset.project === projectKey;
-          project.classList.toggle('is-active', isMatch);
-          project.classList.toggle('is-expanded', isMatch);
-          var toggle = project.querySelector('.nav-project-toggle');
-          if (toggle && toggle.tagName === 'BUTTON') {
-            toggle.setAttribute('aria-expanded', isMatch ? 'true' : 'false');
-          }
-          if (isMatch) {
-            project.classList.add('is-expanded');
-          }
-        });
+        setActiveNav(projectKey, sectionId);
       });
     },
     { rootMargin: '-40% 0px -50% 0px', threshold: 0 }
