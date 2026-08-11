@@ -40,21 +40,62 @@
   var subLinks = document.querySelectorAll('.nav-sub-link');
   var projectStartByKey = {
     healthcare: 'breezy-overview',
-    spatial: 'spatial-light-house',
+    spatial: 'spatial-flora-transit',
     other: 'other',
     experience: 'about'
   };
 
-  function goToProjectStart(project) {
-    var targetId = projectStartByKey[project.dataset.project];
-    if (!targetId) return;
+  function navOffset() {
+    var nav = document.getElementById('nav');
+    var offset = (nav ? nav.getBoundingClientRect().height : 0) + 28;
+    var projectNav = document.querySelector('.project-nav');
+    if (window.matchMedia('(max-width: 720px)').matches && projectNav) {
+      offset += projectNav.getBoundingClientRect().height;
+    }
+    return offset;
+  }
+
+  function scrollToSection(targetId) {
     var target = document.getElementById(targetId);
-    if (!target) return;
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!target) return false;
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function targetTop() {
+      return target.getBoundingClientRect().top + window.pageYOffset - navOffset();
+    }
+
+    window.scrollTo({
+      top: Math.max(0, targetTop()),
+      behavior: prefersReducedMotion ? 'auto' : 'smooth'
+    });
+
+    if (!prefersReducedMotion) {
+      [900, 1700].forEach(function (delay) {
+        setTimeout(function () {
+          window.scrollTo({ top: Math.max(0, targetTop()), behavior: 'auto' });
+        }, delay);
+      });
+    }
+
     if (window.history && window.history.pushState) {
       window.history.pushState(null, '', '#' + targetId);
     }
+    return true;
   }
+
+  function goToProjectStart(project) {
+    var targetId = projectStartByKey[project.dataset.project];
+    if (!targetId) return;
+    scrollToSection(targetId);
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+    link.addEventListener('click', function (event) {
+      var targetId = link.getAttribute('href').slice(1);
+      if (!targetId) return;
+      if (scrollToSection(targetId)) event.preventDefault();
+    });
+  });
 
   // Click a project title to expand it and jump to its start; repeated clicks only jump.
   navProjects.forEach(function (project) {
