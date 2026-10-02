@@ -32,6 +32,122 @@
   }
 })();
 
+// Shared full-screen viewer for case-study images.
+(function () {
+  var dialog = document.querySelector('.image-viewer');
+  if (!dialog || !dialog.showModal) return;
+
+  var stage = dialog.querySelector('.image-viewer-stage');
+  var image = dialog.querySelector('.image-viewer-image');
+  var closeButton = dialog.querySelector('.image-viewer-close');
+  var scale = 1;
+  var panX = 0;
+  var panY = 0;
+  var dragging = false;
+  var dragX = 0;
+  var dragY = 0;
+  var opener = null;
+  var previousOverflow = '';
+
+  function render() {
+    image.style.transform = 'translate(' + panX + 'px, ' + panY + 'px) scale(' + scale + ')';
+    image.classList.toggle('is-zoomed', scale > 1);
+  }
+
+  function clampPan() {
+    var styles = window.getComputedStyle(stage);
+    var availableWidth = stage.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight);
+    var availableHeight = stage.clientHeight - parseFloat(styles.paddingTop) - parseFloat(styles.paddingBottom);
+    var maxX = Math.max(0, (image.offsetWidth * scale - availableWidth) / 2);
+    var maxY = Math.max(0, (image.offsetHeight * scale - availableHeight) / 2);
+    panX = Math.min(maxX, Math.max(-maxX, panX));
+    panY = Math.min(maxY, Math.max(-maxY, panY));
+  }
+
+  function openImage(source, button) {
+    opener = button;
+    scale = 1;
+    panX = 0;
+    panY = 0;
+    image.src = source.currentSrc || source.src;
+    image.alt = source.alt;
+    render();
+    previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialog.showModal();
+    closeButton.focus();
+  }
+
+  document.querySelectorAll('.case img').forEach(function (source) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'portfolio-image-button';
+    button.setAttribute('aria-label', 'View larger image: ' + source.alt);
+    button.setAttribute('aria-haspopup', 'dialog');
+    source.parentNode.insertBefore(button, source);
+    button.appendChild(source);
+    button.addEventListener('click', function () { openImage(source, button); });
+  });
+
+  dialog.addEventListener('wheel', function (event) {
+    event.preventDefault();
+    var delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1);
+    var nextScale = Math.min(5, Math.max(1, scale * Math.exp(-delta * 0.0015)));
+    if (nextScale === scale) return;
+
+    var rect = image.getBoundingClientRect();
+    var centerX = (rect.left + rect.right) / 2 - panX;
+    var centerY = (rect.top + rect.bottom) / 2 - panY;
+    panX = event.clientX - centerX - (event.clientX - centerX - panX) * nextScale / scale;
+    panY = event.clientY - centerY - (event.clientY - centerY - panY) * nextScale / scale;
+    scale = nextScale;
+    clampPan();
+    render();
+  }, { passive: false });
+
+  image.addEventListener('pointerdown', function (event) {
+    if (scale <= 1) return;
+    event.preventDefault();
+    dragging = true;
+    dragX = event.clientX - panX;
+    dragY = event.clientY - panY;
+    image.classList.add('is-dragging');
+    image.setPointerCapture(event.pointerId);
+  });
+  image.addEventListener('pointermove', function (event) {
+    if (!dragging) return;
+    panX = event.clientX - dragX;
+    panY = event.clientY - dragY;
+    clampPan();
+    render();
+  });
+  function stopDragging() {
+    dragging = false;
+    image.classList.remove('is-dragging');
+  }
+  image.addEventListener('pointerup', stopDragging);
+  image.addEventListener('pointercancel', stopDragging);
+  image.addEventListener('lostpointercapture', stopDragging);
+
+  closeButton.addEventListener('click', function () { dialog.close(); });
+  dialog.addEventListener('click', function (event) {
+    if (event.target === dialog || event.target === stage) dialog.close();
+  });
+  dialog.addEventListener('close', function () {
+    document.body.style.overflow = previousOverflow;
+    image.removeAttribute('src');
+    image.alt = '';
+    stopDragging();
+    if (opener) opener.focus({ preventScroll: true });
+    opener = null;
+  });
+  window.addEventListener('resize', function () {
+    if (!dialog.open) return;
+    clampPan();
+    render();
+  });
+})();
+
 // Project sidebar nav: accordion expand + scroll-spy active state.
 (function () {
   var navProjects = document.querySelectorAll('.nav-project');
@@ -56,7 +172,7 @@
     var nav = document.getElementById('nav');
     var offset = (nav ? nav.getBoundingClientRect().height : 0) + 28;
     var projectNav = document.querySelector('.project-nav');
-    if (window.matchMedia('(max-width: 720px)').matches && projectNav) {
+    if (window.matchMedia('(max-width: 900px)').matches && projectNav) {
       offset += projectNav.getBoundingClientRect().height;
     }
     return offset;
